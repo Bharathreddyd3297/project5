@@ -1,0 +1,50 @@
+name: deployment website
+on : push
+jobs : 
+    lint:
+        runs-on: ubuntu-latest
+        steps:
+            - name: get code
+              uses: actions/checkout@v3
+            - name: install dependencies
+              run: npm ci
+            - name: lint
+              run: npm run lint
+        
+    test:
+        runs-on: ubuntu-latest
+        steps:
+            - name: get code
+              uses: actions/checkout@v3
+            - name: install dependencies
+              run: npm ci
+            - name: Test Code
+              run: npm run test 
+    build:
+        needs: test 
+        runs-on: ubuntu-latest
+        steps:
+            - name: get code
+              uses: actions/checkout@v3
+            - name: install dependencies
+              run: npm ci
+            - name: build project
+              run: npm run build
+            - name: Publish JS file
+              id: publish
+              run: find dist/assets/*.js -type f -execdir echo 'script-file={}' >> $GITHUB_OUTPUT ';'
+            - name: Upload Build artifacts
+              uses: actions/upload-artifacts@v4
+              with:
+                name: dist-file
+                path: dist
+    deploy:
+        needs: build
+        runs-on: ubuntu-latest
+        steps:
+            - name: get build artifacts
+              uses: actions/download-artifact@v4
+              with:
+                name: dist-file
+            - name: deploy
+              run: echo "deploying"
