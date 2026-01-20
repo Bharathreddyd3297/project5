@@ -12,6 +12,7 @@ jobs :
               run: npm run lint
         
     test:
+        needs: lint
         runs-on: ubuntu-latest
         steps:
             - name: get code
@@ -34,7 +35,7 @@ jobs :
               id: publish
               run: find dist/assets/*.js -type f -execdir echo 'script-file={}' >> $GITHUB_OUTPUT ';'
             - name: Upload Build artifacts
-              uses: actions/upload-artifacts@v4
+              uses: actions/upload-artifact@v4
               with:
                 name: dist-file
                 path: dist
